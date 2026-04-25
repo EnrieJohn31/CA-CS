@@ -1,363 +1,482 @@
 @extends('home.index')
 @section('content')
+
 <style>
-    /* Define a printable style */
-    @media print {
-        body {
-            visibility: hidden;
-            width: auto;
-        }
-        .printable {
-            visibility: visible;
-            position: absolute;
-            left: 0;
-            top: 0;
-        }
+/* ══════════════════════════════════
+   Reports page — screen styles
+   ══════════════════════════════════ */
+
+/* Hero */
+.rp-hero {
+    background: linear-gradient(135deg,#7c3aed 0%,#4f46e5 50%,#06b6d4 100%);
+    border-radius: var(--ct-radius); padding: 24px 28px 20px;
+    margin-bottom: 20px; position:relative; overflow:hidden; color:#fff;
+}
+.rp-hero::after {
+    content:''; position:absolute; right:-40px; top:-40px;
+    width:180px; height:180px; border-radius:50%;
+    background:rgba(255,255,255,.07); pointer-events:none;
+}
+.rp-hero__eyebrow {
+    display:inline-flex; align-items:center; gap:7px;
+    background:rgba(255,255,255,.18); border-radius:999px;
+    padding:4px 12px; font-size:.7rem; font-weight:700;
+    letter-spacing:.5px; text-transform:uppercase; margin-bottom:10px;
+}
+.rp-hero__title { font-size:1.45rem; font-weight:800; letter-spacing:-.4px; margin-bottom:3px; }
+.rp-hero__sub   { font-size:.82rem; opacity:.85; }
+
+/* Filter card */
+.rp-filter {
+    background:var(--ct-surface); border:1px solid var(--ct-border);
+    border-radius:var(--ct-radius); box-shadow:var(--ct-shadow);
+    margin-bottom:20px; overflow:hidden;
+}
+.rp-filter__header {
+    display:flex; align-items:center; gap:12px;
+    padding:14px 20px; background:var(--ct-surface-alt);
+    border-bottom:1px solid var(--ct-border);
+}
+.rp-filter__icon {
+    width:36px; height:36px; border-radius:9px; flex-shrink:0;
+    display:flex; align-items:center; justify-content:center; font-size:.9rem;
+    background:rgba(124,58,237,.12); color:#7c3aed;
+}
+.rp-filter__title { font-size:.88rem; font-weight:700; color:var(--ct-text); }
+.rp-filter__sub   { font-size:.72rem; color:var(--ct-text-muted); margin-top:1px; }
+.rp-filter__body  { padding:20px; }
+
+.rp-date-label {
+    display:block; font-size:.76rem; font-weight:600;
+    color:var(--ct-text); margin-bottom:5px; letter-spacing:.1px;
+}
+.rp-date-label i { color:#7c3aed; margin-right:5px; }
+input[type="date"].form-control { height:42px; font-size:.88rem; }
+
+.btn-generate {
+    height:42px; padding:0 22px; font-weight:700; font-size:.88rem;
+    background:linear-gradient(135deg,#7c3aed,#4f46e5) !important;
+    border:none !important; color:#fff !important;
+    box-shadow:0 4px 14px rgba(124,58,237,.3) !important;
+    transition:box-shadow .15s,transform .15s !important;
+    border-radius:var(--ct-radius-sm) !important;
+}
+.btn-generate:hover { box-shadow:0 6px 20px rgba(124,58,237,.4) !important; transform:translateY(-1px) !important; }
+
+.btn-print-rp {
+    height:42px; padding:0 22px; font-weight:700; font-size:.88rem;
+    background:var(--ct-surface-alt) !important;
+    border:1px solid var(--ct-border) !important;
+    color:var(--ct-text) !important;
+    border-radius:var(--ct-radius-sm) !important;
+    transition:background .15s, border-color .15s !important;
+}
+.btn-print-rp:hover {
+    background:rgba(124,58,237,.06) !important;
+    border-color:#7c3aed !important;
+    color:#7c3aed !important;
+}
+
+/* Quick-stat strip */
+.rp-stats {
+    display:flex; gap:12px; flex-wrap:wrap; margin-bottom:20px;
+}
+.rp-stat {
+    flex:1 1 140px;
+    background:var(--ct-surface); border:1px solid var(--ct-border);
+    border-radius:var(--ct-radius); box-shadow:var(--ct-shadow);
+    padding:16px 18px;
+}
+.rp-stat__label {
+    font-size:.68rem; font-weight:700; text-transform:uppercase;
+    letter-spacing:.5px; color:var(--ct-text-muted); margin-bottom:6px;
+    display:flex; align-items:center; gap:6px;
+}
+.rp-stat__value {
+    font-size:1.35rem; font-weight:800; letter-spacing:-.5px;
+    font-variant-numeric:tabular-nums; color:var(--ct-text);
+}
+
+/* Report preview card */
+.rp-preview {
+    background:var(--ct-surface); border:1px solid var(--ct-border);
+    border-radius:var(--ct-radius); box-shadow:var(--ct-shadow);
+    overflow:hidden;
+}
+.rp-preview__toolbar {
+    display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap;
+    gap:10px; padding:14px 20px;
+    background:var(--ct-surface-alt); border-bottom:1px solid var(--ct-border);
+}
+.rp-preview__toolbar-left {
+    display:flex; align-items:center; gap:10px;
+}
+.rp-preview__dot { width:10px;height:10px;border-radius:50%; flex-shrink:0; }
+.rp-preview__label { font-size:.82rem; font-weight:700; color:var(--ct-text); }
+.rp-preview__period { font-size:.75rem; color:var(--ct-text-muted); margin-left:4px; }
+
+/* ══════════════════════════════════
+   Printable document styles (screen)
+   ══════════════════════════════════ */
+#printable_div_id {
+    background:#fff;
+    color:#000;
+    padding:32px 40px;
+    font-family:'Segoe UI','Source Sans Pro',Arial,sans-serif;
+    max-width:900px;
+    margin:0 auto;
+}
+.rp-doc-header { text-align:center; margin-bottom:24px; }
+.rp-doc-header img { max-width:100%; height:auto; max-height:140px; object-fit:contain; }
+
+.rp-doc-title   { text-align:center; margin:24px 0 4px; }
+.rp-doc-title h2 {
+    font-size:1.1rem; font-weight:800; text-transform:uppercase;
+    color:#111; letter-spacing:.5px; margin:0;
+}
+.rp-doc-title p  { font-size:.82rem; color:#555; margin:4px 0 0; }
+
+.rp-doc-period {
+    text-align:center; font-size:.8rem; color:#444;
+    margin-bottom:28px;
+    padding:8px 20px;
+    display:inline-block;
+    background:#f5f3ff;
+    border-radius:999px;
+    border:1px solid #ede9fe;
+}
+.rp-doc-period-wrap { text-align:center; margin-bottom:28px; }
+
+/* Income table */
+.rp-income-table {
+    width:100%; border-collapse:collapse;
+    font-size:.82rem; margin-bottom:24px;
+}
+.rp-income-table th {
+    background:#1e1b4b; color:#fff;
+    padding:10px 14px; font-weight:700;
+    text-align:left; font-size:.75rem;
+    text-transform:uppercase; letter-spacing:.5px;
+}
+.rp-income-table th.amt-col { text-align:right; }
+.rp-income-table td {
+    padding:9px 14px; border-bottom:1px solid #e5e7eb;
+    color:#1f2937; vertical-align:middle;
+}
+.rp-income-table td.amt-col {
+    text-align:right; font-weight:600;
+    font-variant-numeric:tabular-nums; color:#111;
+}
+.rp-income-table tbody tr:last-child td { border-bottom:none; }
+.rp-income-table tbody tr:hover td { background:#faf5ff; }
+.rp-income-table .section-row td {
+    background:#f5f3ff; font-weight:700; font-size:.72rem;
+    text-transform:uppercase; letter-spacing:.5px; color:#7c3aed;
+    padding:6px 14px; border-bottom:1px solid #ede9fe;
+}
+.rp-income-table .total-row td {
+    background:#1e1b4b; color:#fff; font-weight:800;
+    font-size:.9rem; padding:12px 14px;
+    border-top:2px solid #4f46e5;
+}
+.rp-income-table .total-row td.amt-col { color:#a5b4fc; font-size:1rem; }
+
+/* Signature block */
+.rp-signatures {
+    display:flex; justify-content:space-around;
+    flex-wrap:wrap; gap:20px; margin-top:36px;
+}
+.rp-sig {
+    text-align:center; min-width:180px;
+}
+.rp-sig__line {
+    width:200px; height:1px; background:#374151;
+    margin:0 auto 6px;
+}
+.rp-sig__name  { font-size:.82rem; font-weight:700; color:#111; }
+.rp-sig__title { font-size:.72rem; color:#555; margin-top:2px; }
+.rp-sig__label { font-size:.7rem; font-weight:700; color:#7c3aed; text-transform:uppercase; letter-spacing:.4px; margin-bottom:32px; }
+
+/* ══════════════════════════════════
+   PRINT media — clean document
+   ══════════════════════════════════ */
+@media print {
+    /* Hide everything */
+    .main-sidebar, .main-header, .main-footer,
+    .app-sidebar, .app-topbar,
+    .rp-hero, .rp-filter, .rp-stats,
+    .rp-preview__toolbar,
+    .btn, .breadcrumb, .content-header { display:none !important; }
+
+    /* Full-page doc */
+    html, body { margin:0 !important; padding:0 !important; background:#fff !important; }
+    .content-wrapper, .wrapper, .content, .container-fluid { margin:0 !important; padding:0 !important; }
+    #printable_div_id {
+        position:static !important; width:100% !important; max-width:100% !important;
+        padding:20mm 20mm 16mm !important;
+        box-shadow:none !important; border:none !important;
+        font-size:10pt !important;
     }
-
-    /* Style for the editable div */
-    .editable-div {
-        border: 1px solid #ccc;
-        padding: 10px;
-        margin: 10px;
-        min-height: 100px;
-    }
-
-        /* Custom CSS to set the modal background color to white */
-        .custom-modal {
-            background-color: white; /* Set the background color to white */
-        }
-
-        .custom-modal-content {
-            color: black; /* Set the text color to black */
-        }
-
-        hr {
-            height: 0.5px; /* Adjust the height to make the line thicker */
-            background-color: black; /* Set the color of the line */
-            border: none; /* Remove the default border */
-            margin: 20px 0; /* Adjust the margin as needed */
-        }
-
+    .rp-preview { box-shadow:none !important; border:none !important; background:#fff !important; }
+    .rp-income-table th { background:#1e1b4b !important; color:#fff !important; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+    .rp-income-table .section-row td { background:#f5f3ff !important; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+    .rp-income-table .total-row td { background:#1e1b4b !important; color:#fff !important; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+    .rp-income-table tbody tr:hover td { background:transparent !important; }
+    @page { margin:15mm; size:A4; }
+}
 </style>
 
-    <section class="content">
-        <!-- Page Wrapper -->
-        <div class="container-fluid">
-            <div class="page-wrapper">
-                <!-- Page Content -->
-                <div class="content container-fluid" id="app">
-                    <!-- Page Header -->
-                    <div class="page-header">
-                        <div class="row align-items-center">
-                            <div class="col">
+<section class="content" style="padding-top:0;">
+<div class="container-fluid pt-3">
 
-                                <ul class="breadcrumb">
-                                    <li class="breadcrumb-item"><a href="{{ route('home') }}">Dashboard</a></li>
-                                    <li class="breadcrumb-item active">Report</li>
-                                </ul>
-                            </div>
-                        </div>
+    {{-- ── Hero ── --}}
+    <div class="rp-hero">
+        <div class="rp-hero__eyebrow"><i class="fas fa-chart-pie"></i> Financial Reports</div>
+        <div class="rp-hero__title">Income Statement Report</div>
+        <div class="rp-hero__sub">Generate a full cash collection summary for any date range and print or save as PDF.</div>
+    </div>
 
-                        <div class="container-fluid">
-                            <div class="col-lg-12">
-                                <div class="card container-fluid">
-                                    <div class="card_body">
-                                        <form method="POST" action="{{ route('forms.total') }}">
-                                                    @csrf
-                                            <div class="row justify-content-center pt-4">
-                                                <div class="col-md-3">
-                                                    <div class="f2orm-group">
-                                                        <label>Start Date:</label>
-                                                        <div class="form-group input-group date"
-                                                            id="reservationdate" data-target-input="nearest">
-                                                            <input name="startdate" id="startdate" type="date"
-                                                            value style="color-scheme: dark;"
-                                                                class="form-control datetimepicker-input"
-                                                                data-target="#reservationdate" required/>
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-                                                <div class="col-md-3">
-                                                    <div class="form-group">
-                                                        <label>End Date:</label>
-                                                        <div class="form-group input-group date"
-                                                            id="reservationdate" data-target-input="nearest">
-                                                            <input name="enddate" id="enddate" type="date"
-                                                            style="color-scheme: dark;"
-                                                                class="form-control datetimepicker-input"
-                                                                data-target="#reservationdate" required/>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="row justify-content-center pt-4">
-                                                <button type="submit" class="btn btn-success" id="generate">Generate</button>
-                                                <button type="button" class="btn btn-primary" onClick="printdiv('printable_div_id');">Print</button>
-                                            </div><br>
-                                        </form>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="row">
-                            <div class="col-md-12">
-                                <div class="card container-fluid">
-                                    <div class="card-body">
-                                        <div class="modal-body custom-modal custom-modal-content">   <!--<--- no end tag -->
-                                        <div class="container printable" id='printable_div_id'>
-                                    <div class="container d-flex justify-content-center">
-                                        <div>
-                                            <img src="{{ asset('assets/img/system/heading.png') }}" alt="header" width="1000" height="325" class="header-image">
-                                            <!-- <img src="{{ asset('assets/img/Logo.png') }}"
-                                                class="d-flex justify-content-start p-4" alt=""> -->
-                                        </div>
-                                        <!-- <div class="pt-4"><br>
-                                            <h2 class="text-uppercase">Carmel Academy</h2>
-                                            <h3 class="text-uppercase">Balilihan Bohol</h3>
-                                        </div> -->
-                                    </div>
-
-                                    <div class="d-flex justify-content-center" style="padding-top: 50px;">
-                                        <div class="ps-4">
-                                            <h3 class="text-uppercase">Income Statement</h3>
-                                            <ul class="list-unstyled d-flex justify-content-center">
-                                                <li>For the Month Ended <span>{{ $end_date }}</span></li>
-                                            </ul>
-                                        </div>
-                                    </div>
-
-                                    <div class="d-flex justify-content-between" style="padding-left: 200px;">
-                                        <div class="invoice-details" hidden>
-                                            <ul class="list-unstyled">
-                                                <li>Cash Beginning <span>{{ $start_date }}</span></li>
-                                            </ul>
-                                        </div>
-                                    </div>
-
-                                    <div class="row" style="padding-left: 200px;" hidden>
-                                        <div class="col-lg-12 m-b-20">
-                                            <ul class="list-unstyled">
-                                                <li>
-                                                    <h5 class="mb-0"><strong></strong></h5>
-                                                </li>
-                                                <li><span></span></li>
-                                                <li>Official Receipt Number</li>
-                                                <li>From: <u>{{ $or_start }}</u></li>
-                                                <li>To: <u>{{ $or_end }}</u></li>
-                                            </ul>
-                                        </div>
-                                    </div>
-
-                                    <!-- <div class="d-flex justify-content-center" style="padding-top: 100px;">
-                                        <div>
-                                            <h4 class="d-flex justify-content-center m-b-10"><strong>CASH Collection:</strong></h4>
-                                            <table class="table table-bordered" style="width: 500px;">
-                                                <tbody>
-                                                    <tr>
-                                                        <td><strong>Monthly Tuition</strong><span class="float-right">₱
-                                                                {{ $tui_sum }}</span></td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td><strong>Enrollment Fee</strong> <span class="float-right">₱
-                                                                {{ $reg_sum }}</span></td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td><strong>Uniform</strong> <span class="float-right">₱
-                                                                {{ $uni_sum }}</span></td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td><strong>Other Fees</strong> <span class="float-right">₱
-                                                                {{ $oth_sum }}</span></td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td><strong>Total</strong> <span class="float-right"><strong>₱
-                                                                {{ $total_sum }}</strong></span></td>
-                                                    </tr>
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </div> -->
-                                    <!-- ------------------------------------------------------------------ -->
-                                    <div class="container">
-                                        <div class="row">
-                                            <div class="col-md-12">
-                                                <div class="d-flex justify-content-center" style="padding-top: 50px;">
-                                                    <table class="table table-bordered" style="width: 100%;">
-                                                        <tbody>
-                                                            <!-- Header Row -->
-                                                            <tr>
-                                                                <td colspan="2" class="text-center">
-                                                                    <h4 class="m-b-10"><strong>CASH Collection:</strong></h4>
-                                                                </td>
-                                                            </tr>
-
-                                                            <!-- First Column -->
-                                                            <tr>
-                                                                <td style="width: 50%;">
-                                                                <table class="table table-bordered" style="width: 100%;">
-                                                                        <tbody>
-                                                                            <!-- Content for the first column -->
-                                                                            <strong>Monthly Tuition</strong><span class="float-right">₱ {{ $tui_sum }}</span> <hr>
-
-                                                                            <strong>Enrollment Fee</strong> <span class="float-right">₱ {{ $reg_sum }}</span><hr>
-
-                                                                            <strong>Uniform</strong> <span class="float-right">₱ {{ $uni_sum }}</span><hr>
-
-                                                                            <strong>Medical Fee</strong> <span class="float-right">₱ {{ $Medical }}
-                                                                                        </span><hr>
-                                                                            <strong>Insurance Fee</strong> <span class="float-right">₱ {{ $Insurance }}
-                                                                                        </span><hr>
-                                                                            <strong>Death Fee</strong> <span class="float-right">₱  {{ $Death }}
-                                                                            </span><hr>
-
-                                                                            <strong>Library Fee</strong> <span class="float-right">₱  {{ $Library }}
-                                                                            </span><hr>
-
-                                                                            <strong>School Publication Fee</strong> <span class="float-right">₱ {{ $School_Pub }}
-                                                                            </span><hr>
-
-                                                                            <strong>Athlete Fee</strong> <span class="float-right">₱ {{ $Athlet }}
-                                                                            </span><hr>
-
-                                                                            <strong>BACS Fee</strong> <span class="float-right">₱ {{ $BACS  }}
-                                                                            </span>
-
-                                                                        </tbody>
-                                                                    </table>
-                                                                </td>
-
-                                                                <!-- Second Column -->
-                                                                <td style="width: 50%;">
-                                                                    <table class="table table-bordered" style="width: 100%;">
-                                                                        <tbody>
-                                                                            <!-- Content for the second column -->
-
-                                                                            <strong>Book Fee</strong> <span class="float-right">₱ {{ $Book  }}
-                                                                            </span><hr>
-                                                                            <strong>Laboratory Fee</strong> <span class="float-right">₱ {{ $Laboratory  }}
-                                                                            </span><hr>
-                                                                            <strong>StudentID Fee</strong> <span class="float-right">₱ {{ $StudentID  }}
-                                                                            </span><hr>
-                                                                            <strong>Passbook Fee</strong> <span class="float-right">₱ {{ $Passbook  }}
-                                                                            </span><hr>
-                                                                            <strong>Handbook Fee</strong> <span class="float-right">₱ {{ $Handbook  }}
-                                                                            </span><hr>
-                                                                            <strong>Dental Fee</strong> <span class="float-right">₱ {{ $Dental  }}
-                                                                            </span><hr>
-                                                                            <strong>Completers Fee</strong> <span class="float-right">₱ {{ $Completers_Fee }}
-                                                                            </span><hr>
-                                                                            <strong>Graduation Fees</strong> <span class="float-right">₱ {{ $graduation }}
-                                                                            </span><hr>
-                                                                            <strong>Other Fees</strong> <span class="float-right">₱ {{ $oth_sum }}</span><hr>
-
-                                                                        </tbody>
-                                                                    </table>
-                                                                </td>
-                                                            </tr>
-
-                                                            <!-- Footer Row -->
-                                                            <tr>
-                                                                <td colspan="2" class="text-right"><strong>Total:</strong> ₱ {{ $total_sum }}</td>
-                                                            </tr>
-
-                                                        </tbody>
-                                                    </table>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <!-- ------------------- -->
-                                    <div class="container">
-                                                        <section class="m-4">
-
-                                                                    <div class="row justify-content-center">
-                                                                        <div class="col-lg-12 text-center mb-4 px-4" style="padding-top: 10px;">
-                                                                            <div class="d-flex justify-content-center">
-                                                                                <p><strong>Prepared By:</strong></p>
-                                                                            </div>
-                                                                            <div class="d-flex justify-content-center">
-                                                                                <p>JENNIFER S. DISPO<br>Cashier</p>
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-
-                                                                <div class="col-lg-12 text-right mb-4 px-4"hidden >
-                                                                    <div class="d-flex justify-content-end">
-                                                                        <p><strong>Verified By:</strong></p>
-                                                                    </div>
-                                                                    <div class="d-flex justify-content-end"hidden>
-                                                                         <p>EMETERIO C. JAVINEZ JR. LPT, MAED<br>Principal</p>
-                                                                    </div>
-                                                                </div>
-
-                                                                <div class="col-lg-12 text-right mb-4 px-4"hidden>
-                                                                    <div class="d-flex justify-content-end">
-                                                                        <p><strong>Approved By:</strong></p>
-                                                                    </div>
-                                                                    <div class="d-flex justify-content-end"hidden>
-                                                                        <p>REV. FR. AGERIO V. PAÑA <br> Director</p>
-                                                                    </div>
-                                                                </div>
-
-                                                            </div>
-                                                        </section>
-                                                    </div>
-                                    <!-- ---------------- -->
-                                </div>
-                            </div>
-                        </div>
-
-                        </div>
-                                </div>
-                    </div>
-                </div>
-                <!-- /Page Content -->
+    {{-- ── Filter card ── --}}
+    <div class="rp-filter">
+        <div class="rp-filter__header">
+            <div class="rp-filter__icon"><i class="fas fa-filter"></i></div>
+            <div>
+                <div class="rp-filter__title">Report Filter</div>
+                <div class="rp-filter__sub">Select a date range then click Generate</div>
             </div>
-            <!-- /Page Wrapper -->
         </div>
-    </section>
+        <div class="rp-filter__body">
+            <form method="POST" action="{{ route('forms.total') }}" id="reportForm">
+                @csrf
+                <div class="row align-items-end">
 
-    <script>
-        function printdiv(elem) {
-            var header_str = '<html><head><title>' + document.title + '</title>';
+                    <div class="col-lg-4 col-md-5 col-sm-6 mb-3">
+                        <label class="rp-date-label" for="startdate">
+                            <i class="fas fa-calendar-plus"></i> Start Date
+                        </label>
+                        <input type="date" name="startdate" id="startdate"
+                               class="form-control" required
+                               value="{{ request('startdate') ?? '' }}">
+                    </div>
 
-            // Add style for dark text
-            header_str += '<style type="text/css">';
-            header_str += '@media print { body { color: #000 !important; } }';
-            header_str += '</style>';
+                    <div class="col-lg-4 col-md-5 col-sm-6 mb-3">
+                        <label class="rp-date-label" for="enddate">
+                            <i class="fas fa-calendar-check"></i> End Date
+                        </label>
+                        <input type="date" name="enddate" id="enddate"
+                               class="form-control" required
+                               value="{{ request('enddate') ?? '' }}">
+                    </div>
 
-            header_str += '</head><body>';
+                    <div class="col-lg-4 col-md-2 col-sm-12 mb-3">
+                        <div class="d-flex" style="gap:8px;flex-wrap:wrap;">
+                            <button type="submit" class="btn btn-generate" id="generateBtn">
+                                <i class="fas fa-sync-alt mr-2"></i>Generate
+                            </button>
+                            <button type="button" class="btn btn-print-rp" onclick="printReport()" title="Print report">
+                                <i class="fas fa-print mr-2"></i>Print
+                            </button>
+                        </div>
+                    </div>
 
-            var footer_str = '</body></html>';
-            var new_str = document.getElementById(elem).innerHTML;
-            var old_str = document.body.innerHTML;
+                </div>
+            </form>
+        </div>
+    </div>
 
-            document.body.innerHTML = header_str +  new_str  +footer_str ;
+    {{-- ── Quick stats ── --}}
+    @php
+        $fees = [
+            'tui_sum'       => $tui_sum       ?? 0,
+            'reg_sum'       => $reg_sum       ?? 0,
+            'uni_sum'       => $uni_sum       ?? 0,
+            'Medical'       => $Medical       ?? 0,
+            'Insurance'     => $Insurance     ?? 0,
+            'Death'         => $Death         ?? 0,
+            'Library'       => $Library       ?? 0,
+            'School_Pub'    => $School_Pub    ?? 0,
+            'Athlet'        => $Athlet        ?? 0,
+            'BACS'          => $BACS          ?? 0,
+            'Book'          => $Book          ?? 0,
+            'Laboratory'    => $Laboratory    ?? 0,
+            'StudentID'     => $StudentID     ?? 0,
+            'Passbook'      => $Passbook      ?? 0,
+            'Handbook'      => $Handbook      ?? 0,
+            'Dental'        => $Dental        ?? 0,
+            'Completers_Fee'=> $Completers_Fee ?? 0,
+            'graduation'    => $graduation    ?? 0,
+            'oth_sum'       => $oth_sum       ?? 0,
+        ];
+        $totalSum   = $total_sum ?? 0;
+        $gradeTotal = ($fees['tui_sum'] + $fees['reg_sum'] + $fees['uni_sum']);
+        $annualTotal= $totalSum - $gradeTotal - $fees['oth_sum'];
+    @endphp
+    <div class="rp-stats">
+        <div class="rp-stat">
+            <div class="rp-stat__label"><i class="fas fa-peso-sign" style="color:#7c3aed;"></i> Total Collection</div>
+            <div class="rp-stat__value" style="color:#7c3aed;">₱ {{ number_format((float)$totalSum,2) }}</div>
+        </div>
+        <div class="rp-stat">
+            <div class="rp-stat__label"><i class="fas fa-layer-group" style="color:#4f46e5;"></i> Grade Fees</div>
+            <div class="rp-stat__value">₱ {{ number_format((float)$gradeTotal,2) }}</div>
+        </div>
+        <div class="rp-stat">
+            <div class="rp-stat__label"><i class="fas fa-calendar-alt" style="color:#06b6d4;"></i> Annual Fees</div>
+            <div class="rp-stat__value">₱ {{ number_format((float)$annualTotal,2) }}</div>
+        </div>
+        <div class="rp-stat">
+            <div class="rp-stat__label"><i class="fas fa-coins" style="color:#10b981;"></i> Other Income</div>
+            <div class="rp-stat__value">₱ {{ number_format((float)$fees['oth_sum'],2) }}</div>
+        </div>
+    </div>
 
-            window.print();
+    {{-- ── Report preview card ── --}}
+    <div class="rp-preview">
+        <div class="rp-preview__toolbar">
+            <div class="rp-preview__toolbar-left">
+                <span class="rp-preview__dot" style="background:#10b981;box-shadow:0 0 0 3px rgba(16,185,129,.2);"></span>
+                <span class="rp-preview__label">Income Statement Preview</span>
+                <span class="rp-preview__period">
+                    @if(isset($start_date) && isset($end_date))
+                        {{ $start_date }} — {{ $end_date }}
+                    @else
+                        Generate a report to view the income statement
+                    @endif
+                </span>
+            </div>
+            <button type="button" class="btn btn-print-rp btn-sm" onclick="printReport()">
+                <i class="fas fa-print mr-1"></i> Print / Save PDF
+            </button>
+        </div>
 
-            document.body.innerHTML = old_str;
+        {{-- ══ PRINTABLE DOCUMENT ══ --}}
+        <div id="printable_div_id">
 
-            return false;
-        }
+            {{-- Letterhead --}}
+            <div class="rp-doc-header">
+                <img src="{{ asset('assets/img/system/heading.png') }}" alt="Carmel Academy Letterhead">
+            </div>
 
-        $(document).on('click', '#generate', function() {
-            var student_id = $(this).data('id');
-            $('.editStudent').find('form')[0].reset();
-            $('.editStudent').find('span.error-text').text('');
-            $.post('<?= route('get.show.payment') ?>', {
-                student_id: student_id
-            }, function(data) {
-                //   alert(data.details.name);
-                $('.editStudent').find('input[name="sid"]').val(data.details.id);
-                $('.editStudent').find('input[name="startdate"]').val(data.details.datepaid);
-                $('.editStudent').find('input[name="or_num"]').val(data.details.or_no);
-            }, 'json');
-        });
-    </script>
+            {{-- Report title --}}
+            <div class="rp-doc-title">
+                <h2>Cash Collection Income Statement</h2>
+            </div>
+            <div class="rp-doc-period-wrap">
+                <span class="rp-doc-period">
+                    <i class="fas fa-calendar-alt" style="margin-right:6px;color:#7c3aed;"></i>
+                    Period: <strong>{{ $start_date ?? '—' }}</strong> &nbsp;to&nbsp; <strong>{{ $end_date ?? '—' }}</strong>
+                </span>
+            </div>
+
+            {{-- Income table --}}
+            <table class="rp-income-table">
+                <thead>
+                    <tr>
+                        <th style="width:70%;">Description</th>
+                        <th class="amt-col" style="width:30%;">Amount</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{-- Grade Fees --}}
+                    <tr class="section-row"><td colspan="2">Grade Level Fees</td></tr>
+                    <tr>
+                        <td>Tuition Fee</td>
+                        <td class="amt-col">₱ {{ number_format((float)$fees['tui_sum'],2) }}</td>
+                    </tr>
+                    <tr>
+                        <td>Registration / Enrollment Fee</td>
+                        <td class="amt-col">₱ {{ number_format((float)$fees['reg_sum'],2) }}</td>
+                    </tr>
+                    <tr>
+                        <td>Uniform Fee</td>
+                        <td class="amt-col">₱ {{ number_format((float)$fees['uni_sum'],2) }}</td>
+                    </tr>
+
+                    {{-- Annual Fees --}}
+                    <tr class="section-row"><td colspan="2">Annual Fees</td></tr>
+                    <tr><td>Medical Fee</td>         <td class="amt-col">₱ {{ number_format((float)$fees['Medical'],2) }}</td></tr>
+                    <tr><td>Insurance Fee</td>       <td class="amt-col">₱ {{ number_format((float)$fees['Insurance'],2) }}</td></tr>
+                    <tr><td>Death Aid Fee</td>       <td class="amt-col">₱ {{ number_format((float)$fees['Death'],2) }}</td></tr>
+                    <tr><td>Library Fee</td>         <td class="amt-col">₱ {{ number_format((float)$fees['Library'],2) }}</td></tr>
+                    <tr><td>School Publication Fee</td><td class="amt-col">₱ {{ number_format((float)$fees['School_Pub'],2) }}</td></tr>
+                    <tr><td>Athlete Fee</td>         <td class="amt-col">₱ {{ number_format((float)$fees['Athlet'],2) }}</td></tr>
+                    <tr><td>BACS Fee</td>            <td class="amt-col">₱ {{ number_format((float)$fees['BACS'],2) }}</td></tr>
+                    <tr><td>Book Fee</td>            <td class="amt-col">₱ {{ number_format((float)$fees['Book'],2) }}</td></tr>
+                    <tr><td>Laboratory Fee</td>      <td class="amt-col">₱ {{ number_format((float)$fees['Laboratory'],2) }}</td></tr>
+                    <tr><td>Student ID Fee</td>      <td class="amt-col">₱ {{ number_format((float)$fees['StudentID'],2) }}</td></tr>
+                    <tr><td>Passbook Fee</td>        <td class="amt-col">₱ {{ number_format((float)$fees['Passbook'],2) }}</td></tr>
+                    <tr><td>Handbook Fee</td>        <td class="amt-col">₱ {{ number_format((float)$fees['Handbook'],2) }}</td></tr>
+                    <tr><td>Dental Fee</td>          <td class="amt-col">₱ {{ number_format((float)$fees['Dental'],2) }}</td></tr>
+
+                    {{-- Milestone --}}
+                    <tr class="section-row"><td colspan="2">Milestone Fees</td></tr>
+                    <tr><td>Completers Fee</td>      <td class="amt-col">₱ {{ number_format((float)$fees['Completers_Fee'],2) }}</td></tr>
+                    <tr><td>Graduation Fee</td>      <td class="amt-col">₱ {{ number_format((float)$fees['graduation'],2) }}</td></tr>
+
+                    {{-- Other --}}
+                    <tr class="section-row"><td colspan="2">Other Income</td></tr>
+                    <tr><td>Other Fees</td>          <td class="amt-col">₱ {{ number_format((float)$fees['oth_sum'],2) }}</td></tr>
+
+                    {{-- Total --}}
+                    <tr class="total-row">
+                        <td><strong>TOTAL CASH COLLECTION</strong></td>
+                        <td class="amt-col"><strong>₱ {{ number_format((float)$totalSum,2) }}</strong></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            {{-- Signature block --}}
+            <div class="rp-signatures">
+                <div class="rp-sig">
+                    <div class="rp-sig__label">Prepared By</div>
+                    <div class="rp-sig__line"></div>
+                    <div class="rp-sig__name">JENNIFER S. DISPO</div>
+                    <div class="rp-sig__title">Cashier</div>
+                </div>
+                <div class="rp-sig">
+                    <div class="rp-sig__label">Verified By</div>
+                    <div class="rp-sig__line"></div>
+                    <div class="rp-sig__name">EMETERIO C. JAVINEZ JR., LPT, MAED</div>
+                    <div class="rp-sig__title">Principal</div>
+                </div>
+                <div class="rp-sig">
+                    <div class="rp-sig__label">Approved By</div>
+                    <div class="rp-sig__line"></div>
+                    <div class="rp-sig__name">REV. FR. AGERIO V. PAÑA</div>
+                    <div class="rp-sig__title">Director</div>
+                </div>
+            </div>
+
+        </div>{{-- /#printable_div_id --}}
+    </div>{{-- /.rp-preview --}}
+
+</div>
+</section>
+
+<script>
+function printReport() {
+    window.print();
+}
+
+/* Auto-set end date max to today */
+document.addEventListener('DOMContentLoaded', function () {
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('enddate').max   = today;
+    document.getElementById('startdate').max = today;
+
+    /* Validate start ≤ end */
+    document.getElementById('startdate').addEventListener('change', function () {
+        const end = document.getElementById('enddate');
+        if (end.value && this.value > end.value) end.value = this.value;
+        end.min = this.value;
+    });
+
+    /* Generate button spinner */
+    document.getElementById('reportForm').addEventListener('submit', function () {
+        const btn = document.getElementById('generateBtn');
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Generating…';
+    });
+});
+</script>
 @endsection

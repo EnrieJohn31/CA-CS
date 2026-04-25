@@ -56,7 +56,7 @@
                                                                                     data-target-input="nearest">
                                                                                     <input name="startdate"
                                                                                         id="startdate" type="date"
-                                                                                        style="color-scheme: dark;"
+                                                                                        
                                                                                         class="form-control datetimepicker-input"
                                                                                         data-target="#reservationdate"
                                                                                         required />
@@ -73,7 +73,7 @@
                                                                                     data-target-input="nearest">
                                                                                     <input name="enddate" id="enddate"
                                                                                         type="date"
-                                                                                        style="color-scheme: dark;"
+                                                                                        
                                                                                         class="form-control datetimepicker-input"
                                                                                         data-target="#reservationdate"
                                                                                         required />

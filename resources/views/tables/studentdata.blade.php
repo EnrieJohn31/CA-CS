@@ -5,47 +5,67 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     @include('body.js')
     <script src="{{ asset('assets/js/carmeljs/form.js') }}"></script>
-    <!-- Main content -->
-    <section class="content">
-        <div class="container-fluid">
+    <section class="content" style="padding-top:0;">
+    <div class="container-fluid pt-3 pb-4">
 
-            <div class="page-header">
-                <div class="row align-items-center">
-                    <div class="col">
-                        <ul class="breadcrumb">
-                            <li class="breadcrumb-item"><a href="{{ route('home') }}">Dashboard</a></li>
-                            <li class="breadcrumb-item active">Cash Collection</li>
-                        </ul>
+        {{-- Hero --}}
+        <div class="pg-hero" style="background:linear-gradient(135deg,#0f766e 0%,#0891b2 55%,#06b6d4 100%);margin-bottom:20px;">
+            <div class="pg-hero__eyebrow"><i class="fas fa-coins"></i> Data · Cash Collection</div>
+            <div class="pg-hero__title">Cash Collection</div>
+            <div class="pg-hero__sub">All student payment records — view, edit, archive and track balances</div>
+        </div>
+
+        <div class="pg-card">
+
+            {{-- Toolbar --}}
+            <div class="pg-toolbar">
+                <div>
+                    <div class="pg-toolbar__title">
+                        <span class="pg-toolbar__dot" style="background:#06b6d4;box-shadow:0 0 0 3px rgba(6,182,212,.2);"></span>
+                        Payment Records
                     </div>
+                    <div style="font-size:.72rem;color:var(--ct-text-muted);margin-top:2px;">All student fee collections and payment status</div>
                 </div>
+                <a href="{{ route('cashier.mainform') }}" class="btn btn-primary btn-sm">
+                    <i class="fas fa-money-check-alt mr-1"></i> Collect Payment
+                </a>
             </div>
 
-            <div class="card">
-                <div class="card-header" hidden>
-                    <h3 class="card-title">Student Data</h3>
-                    <button class="btn btn-sm btn-success float-right" id="cashform">Cashier Form</button>
-                </div>
+            {{-- Bulk archive bar --}}
+            <div class="bulk-bar" id="archiveBulkBar">
+                <i class="fas fa-box-open" style="color:#f59e0b;"></i>
+                <span class="bulk-bar__count" id="archiveBulkCount" style="color:#f59e0b;">0 selected</span>
+                <button class="btn btn-sm btn-warning" id="archiveAllBtn" style="color:#fff;">
+                    <i class="fas fa-archive mr-1"></i> Archive Selected
+                </button>
+                <button class="btn btn-sm btn-outline-secondary" id="clearStudentSel">
+                    <i class="fas fa-times mr-1"></i> Clear
+                </button>
+            </div>
 
-                <!-- /.card-header -->
-
-                <div class="card-body">
-                    <table class="table table-bordered table-striped" id="student-table">
-                        <thead>
-                            <th><input type="checkbox" name="main_checkbox"><label></label></th>
-                            <th>No</th>
-                            <th>Name</th>
-                            <th>Section</th>
-                            <th>Level</th>
-                            <th>SY</th>
-                            <th>Strand</th>
-                            <th>OR No.</th>
-                            <th>Date Paid</th>
-                            <th>Total Fee</th>
-                            <th>Amount Paid</th>
-                            <th>Balance</th>
-                            <th>Actions <button class="btn btn-sm btn-warning d-none" id="archiveAllBtn">Archive</button>
-                            </th>
-                        </thead>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                <table class="table table-hover mb-0" id="student-table">
+                    <thead>
+                        <tr>
+                        <th style="width:40px;padding:12px 16px;">
+                            <input type="checkbox" name="main_checkbox" id="stuMainChk"
+                                   style="width:16px;height:16px;accent-color:var(--ct-primary);cursor:pointer;">
+                        </th>
+                        <th style="width:46px;">#</th>
+                        <th><i class="fas fa-user mr-1" style="opacity:.5;"></i> Name</th>
+                        <th>Section</th>
+                        <th><i class="fas fa-layer-group mr-1" style="color:var(--ct-primary);opacity:.6;"></i> Level</th>
+                        <th>SY</th>
+                        <th>Strand</th>
+                        <th>OR No.</th>
+                        <th>Date Paid</th>
+                        <th><i class="fas fa-file-invoice-dollar mr-1" style="color:#4f46e5;opacity:.6;"></i> Total Fee</th>
+                        <th><i class="fas fa-check-circle mr-1" style="color:#10b981;opacity:.6;"></i> Paid</th>
+                        <th><i class="fas fa-exclamation-circle mr-1" style="color:#ef4444;opacity:.6;"></i> Balance</th>
+                        <th style="text-align:center;">Actions</th>
+                        </tr>
+                    </thead>
                         <tbody></tbody>
                         {{-- <tbody>
                             @foreach ($students as $student)
@@ -82,31 +102,34 @@
                         </tbody> --}}
                     </table>
 
-                    {{-- @include('modal.cashier_form') --}}
                     @include('modal.payment')
                     @include('modal.payment_summary')
 
-                </div>
-                <!-- /.card-body -->
-            </div>
-            <!-- /.card -->
-        </div>
-        <!-- /.col -->
-        </div>
-        <!-- /.row -->
-        </div>
-        <!-- /.container-fluid -->
+                </div>{{-- /.table-responsive --}}
+                </div>{{-- /.card-body p-0 --}}
+            </div>{{-- /.pg-card --}}
+
+    </div>{{-- /.container-fluid --}}
 
     </section>
     <script>
         toastr.options.preventDuplicates = true;
+        $.ajaxSetup({ headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') } });
 
-        $.ajaxSetup({
-            headers: {
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        function syncStuBulk() {
+            var n = $('input[name="student_checkbox"]:checked').length;
+            var total = $('input[name="student_checkbox"]').length;
+            $('#stuMainChk').prop('checked', n > 0 && n === total).prop('indeterminate', n > 0 && n < total);
+            if (n > 0) {
+                $('#archiveBulkBar').addClass('visible');
+                $('#archiveBulkCount').text(n + ' row' + (n > 1 ? 's' : '') + ' selected');
+            } else {
+                $('#archiveBulkBar').removeClass('visible');
             }
-        });
-
+        }
+        $('#stuMainChk').on('click', function () { $('input[name="student_checkbox"]').prop('checked', this.checked); syncStuBulk(); });
+        $(document).on('change', 'input[name="student_checkbox"]', syncStuBulk);
+        $('#clearStudentSel').on('click', function () { $('input[name="student_checkbox"]').prop('checked', false); $('#stuMainChk').prop('checked', false).prop('indeterminate', false); syncStuBulk(); });
 
         $(function() {
             //GET ALL Students
@@ -959,4 +982,5 @@
         //             });
         //         });
     </script>
+    </section>
 @endsection

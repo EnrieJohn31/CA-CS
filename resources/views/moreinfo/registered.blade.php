@@ -1,70 +1,51 @@
 @extends('home.index')
-
 @section('content')
-    <!-- CSRF Token -->
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-    @include('body.js')
-    <script src="{{ asset('assets/js/carmeljs/form.js') }}"></script>
-    <!-- Main content -->
-    <section class="content">
-        <div class="container-fluid">
-
-            <div class="page-header">
-                <div class="row align-items-center">
-                    <div class="col">
-
-                        <ul class="breadcrumb">
-                            <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
-                            <li class="breadcrumb-item active">Registered Students</li>
-                        </ul>
-                    </div>
-                </div>
+<meta name="csrf-token" content="{{ csrf_token() }}">
+<section class="content" style="padding-top:0;">
+<div class="container-fluid pt-3 pb-4">
+    <div class="pg-hero" style="background:linear-gradient(135deg,#4f46e5 0%,#6366f1 55%,#10b981 100%);margin-bottom:20px;">
+        <div class="pg-hero__eyebrow"><i class="fas fa-users"></i> Dashboard</div>
+        <div class="pg-hero__title">Registered Students</div>
+        <div class="pg-hero__sub">All students currently registered in the system</div>
+    </div>
+    <div class="pg-card">
+        <div class="pg-toolbar">
+            <div class="pg-toolbar__title">
+                <span class="pg-toolbar__dot" style="background:#4f46e5;box-shadow:0 0 0 3px rgba(79,70,229,.2);"></span>
+                Full Registry
             </div>
-
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">Student Data</h3>
-                </div>
-                <!-- /.card-header -->
-
-                <div class="card-body">
-                    <table class="table table-bordered table-striped" id="student-table">
-                        <thead>
-                            <th>ID Number</th>
-                            <th>Name</th>
-                            <th>Section</th>
-                            <th>Level</th>
-                            <th>SY</th>
-                            <th>Strand</th>
-                        </thead>
-                        <tbody>
-                            @foreach ($students as $student)
-                                <tr class="h-25">
-                                    <td>{{ $student->Id_num }}</td>
-                                    <td>{{ $student->name }}</td>
-                                    <td>{{ $student->section }}</td>
-                                    <td>{{ $student->lvl }}</td>
-                                    <td>{{ $student->ay }}</td>
-                                    <td>{{ $student->strand }}</td>
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                    <div class="pt-4 d-flex justify-content-center">
-                        {{ $students->links() }}
-                    </div>
-
-
-                </div>
-                <!-- /.card-body -->
-            </div>
-            <!-- /.card -->
+            <a href="{{ route('dashboard') }}" class="btn btn-sm btn-outline-secondary"><i class="fas fa-arrow-left mr-1"></i> Back</a>
         </div>
-        <!-- /.col -->
+        <div class="card-body p-0">
+        <div class="table-responsive">
+        <table class="table table-hover mb-0">
+            <thead>
+                <tr>
+                    <th>LRN / ID</th><th>Name</th><th>Section</th>
+                    <th>Level</th><th>School Year</th><th>Strand</th>
+                </tr>
+            </thead>
+            <tbody>
+                @forelse ($students as $s)
+                <tr>
+                    <td style="font-weight:600;font-variant-numeric:tabular-nums;">{{ $s->Id_num }}</td>
+                    <td>{{ $s->name }}</td>
+                    <td>{{ $s->section }}</td>
+                    <td><span style="display:inline-flex;padding:3px 10px;border-radius:999px;font-size:.75rem;font-weight:700;background:rgba(79,70,229,.1);color:var(--ct-primary);border:1px solid rgba(79,70,229,.2);">{{ $s->lvl }}</span></td>
+                    <td>{{ $s->ay }}</td>
+                    <td>{{ $s->strand ?? '—' }}</td>
+                </tr>
+                @empty
+                <tr><td colspan="6" class="text-center py-4" style="color:var(--ct-text-muted);"><i class="fas fa-inbox" style="font-size:1.5rem;opacity:.3;display:block;margin-bottom:8px;"></i>No students found.</td></tr>
+                @endforelse
+            </tbody>
+        </table>
         </div>
-        <!-- /.row -->
         </div>
-        <!-- /.container-fluid -->
-
-    </section>
+        @if($students->hasPages())
+        <div class="card-footer" style="background:var(--ct-surface-alt);border-top:1px solid var(--ct-border);padding:12px 20px;">{{ $students->links() }}</div>
+        @endif
+    </div>
+</div>
+</section>
 @endsection

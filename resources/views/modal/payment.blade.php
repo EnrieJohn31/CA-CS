@@ -24,7 +24,7 @@
                     {{-- <div class="form-group">
                         <label>Date:</label>
                         <div class="form-group input-group date" id="reservationdate" data-target-input="nearest">
-                            <input name="datep" id="datep" type="date" style="color-scheme: dark;"
+                            <input name="datep" id="datep" type="date" 
                                 class="form-control datetimepicker-input" data-target="#reservationdate" />
                             <div class="input-group-append" data-target="#reservationdate" data-toggle="datetimepicker">
                                 <div class="input-group-text"><i class="fa fa-calendar"></i></div>
@@ -35,7 +35,7 @@
                     <div class="form-group">
                         <label>Date:</label>
                         <div class="form-group input-group date" id="reservationdate" data-target-input="nearest">
-                            <input name="datep" id="datep" type="date" style="color-scheme: dark;"
+                            <input name="datep" id="datep" type="date" 
                                 class="form-control datetimepicker-input" data-target="#reservationdate"
                                 min="<?= date('m-d-Y') ?>" disabled />
                         </div>

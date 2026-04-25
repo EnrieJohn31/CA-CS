@@ -23,6 +23,24 @@
   <link rel="stylesheet" href="{{ asset('assets/plugins/sweetalert2/sweetalert2.min.css') }}">
   <link rel="stylesheet" href="{{ asset('assets/plugins/toastr/toastr.min.css') }}">
 
+  <!-- Enhanced Theme (Light/Dark) -->
+  <link rel="stylesheet" href="{{ asset('assets/css/theme-enhanced.css') }}">
+  <script>
+      (function () {
+          try {
+              var t = localStorage.getItem('cashier_theme') || 'dark';
+              document.documentElement.setAttribute('data-theme', t);
+              // Apply on <html> so CSS fallbacks target something even before <body> exists
+              document.documentElement.classList.add(t === 'light' ? 'light-mode' : 'dark-mode');
+              document.addEventListener('DOMContentLoaded', function () {
+                  document.body.classList.remove('dark-mode', 'light-mode');
+                  document.body.classList.add(t === 'light' ? 'light-mode' : 'dark-mode');
+                  document.documentElement.classList.remove('dark-mode', 'light-mode');
+              });
+          } catch (e) {}
+      })();
+  </script>
+
     <!-- Scripts -->
     @viteReactRefresh
     @vite(['resources/sass/app.scss', 'resources/js/app.js'])
@@ -97,6 +115,8 @@
             @yield('content')
         </main>
     </div>
+
+    <script src="{{ asset('assets/js/theme-toggle.js') }}"></script>
 </body>
 
 
